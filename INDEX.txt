@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Controladoria — Visão Integrada</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#050810;min-height:100vh;padding:24px;font-family:'DM Sans',sans-serif}
+
+  .d{background:#080c18;color:#e2e8f0;padding:24px;border-radius:16px;max-width:1200px;margin:0 auto}
+
+  .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;padding-bottom:14px;border-bottom:.5px solid rgba(255,255,255,0.07)}
+  .hdr h1{font-size:11px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:#475569;margin-bottom:4px}
+  .hdr h2{font-size:22px;font-weight:500;color:#f1f5f9;letter-spacing:-.02em}
+  .hdr-r{display:flex;align-items:center;gap:10px}
+  .badge{font-family:'DM Mono',monospace;font-size:10px;background:rgba(99,102,241,.15);color:#818cf8;border:.5px solid rgba(99,102,241,.3);border-radius:6px;padding:5px 10px;letter-spacing:.06em}
+  .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,.2)}50%{box-shadow:0 0 0 6px rgba(34,197,94,.04)}}
+
+  .sec-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#334155;margin:20px 0 10px;border-left:2px solid #334155;padding-left:8px}
+
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .g32{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px}
+
+  @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g32,.g2{grid-template-columns:1fr}}
+
+  .kc{background:#0f1520;border:.5px solid rgba(255,255,255,0.06);border-radius:9px;padding:14px;position:relative;overflow:hidden;transition:border-color .2s}
+  .kc:hover{border-color:rgba(255,255,255,.12)}
+  .kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+  .kc.indigo::before{background:linear-gradient(90deg,#6366f1,#818cf8)}
+  .kc.green::before{background:linear-gradient(90deg,#10b981,#34d399)}
+  .kc.amber::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+  .kc.red::before{background:linear-gradient(90deg,#ef4444,#f87171)}
+  .kc.teal::before{background:linear-gradient(90deg,#06b6d4,#22d3ee)}
+  .kc.pink::before{background:linear-gradient(90deg,#ec4899,#f472b6)}
+  .kc.violet::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
+  .kc.sky::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
+  .kc.lime::before{background:linear-gradient(90deg,#84cc16,#a3e635)}
+  .kc.rose::before{background:linear-gradient(90deg,#f43f5e,#fb7185)}
+  .kc.orange::before{background:linear-gradient(90deg,#f97316,#fb923c)}
+  .kc.cyan::before{background:linear-gradient(90deg,#06b6d4,#67e8f9)}
+
+  .kl{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+  .kv{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:#f1f5f9;letter-spacing:-.02em;margin-bottom:4px}
+  .kd{font-size:11px;display:flex;align-items:center;gap:3px}
+  .kd.up{color:#22c55e}.kd.down{color:#ef4444}.kd.warn{color:#f59e0b}.kd.muted{color:#475569}
+  .ka{font-size:9px;color:#334155;margin-top:5px;line-height:1.4}
+
+  .panel{background:#0f1520;border:.5px solid rgba(255,255,255,0.06);border-radius:9px;padding:16px}
+  .pt{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+  .pt span{color:#334155;font-size:9px}
+
+  .bw{position:relative;width:100%;height:170px}
+  .lw{position:relative;width:100%;height:155px}
+
+  .dre-r{display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid rgba(255,255,255,0.04);font-size:12px}
+  .dre-r:last-child{border:none}
+  .dre-r .lb{color:#94a3b8}.dre-r .vl{font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0}
+  .dre-r .vl.g{color:#22c55e}.dre-r .vl.r{color:#ef4444}
+  .dre-total{background:rgba(99,102,241,.08);border-radius:6px;padding:7px 10px;margin-top:4px}
+  .dre-total .lb{color:#818cf8;font-weight:500}.dre-total .vl{color:#818cf8;font-weight:500}
+
+  .al-r{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:.5px solid rgba(255,255,255,0.04);font-size:12px}
+  .al-r:last-child{border:none}
+  .al-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .al-dot.r{background:#ef4444}.al-dot.a{background:#f59e0b}.al-dot.g{background:#22c55e}
+  .al-tx{color:#94a3b8;flex:1}.al-mt{font-family:'DM Mono',monospace;font-size:10px;color:#334155}
+
+  .pr-r{margin-bottom:10px}
+  .pr-l{display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:4px}
+  .pr-l span:last-child{font-family:'DM Mono',monospace;color:#e2e8f0}
+  .pr-b{height:4px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden}
+  .pr-f{height:100%;border-radius:99px}
+
+  .lg-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+  .lg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:#475569}
+  .lg-sq{width:7px;height:7px;border-radius:2px}
+
+  .tag{display:inline-block;font-size:9px;padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;margin-top:6px}
+  .tag.g{background:rgba(34,197,94,.12);color:#22c55e}
+  .tag.r{background:rgba(239,68,68,.12);color:#ef4444}
+  .tag.a{background:rgba(245,158,11,.12);color:#f59e0b}
+  .tag.i{background:rgba(99,102,241,.12);color:#818cf8}
+
+  .footer{margin-top:20px;padding-top:14px;border-top:.5px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#334155}
+  .footer span{font-family:'DM Mono',monospace}
+</style>
+</head>
+<body>
+<div class="d">
+
+  <div class="hdr">
+    <div>
+      <h1>Painel de Controladoria — Visão Integrada</h1>
+      <h2>Financeiro · Tributário · Fiscal · Operacional</h2>
+    </div>
+    <div class="hdr-r">
+      <div class="dot"></div>
+      <div class="badge">ABR 2026 · ACUMULADO</div>
+    </div>
+  </div>
+
+  <!-- RESULTADO & RENTABILIDADE -->
+  <div class="sec-title">Resultado &amp; Rentabilidade</div>
+  <div class="g4">
+    <div class="kc green">
+      <div class="kl">Margem Líquida</div>
+      <div class="kv">18,4%</div>
+      <div class="kd up">▲ +2,1pp vs abr/25</div>
+      <div class="ka">Lucro líq. / Receita líq. — meta: 17%</div>
+      <div class="tag g">ACIMA META</div>
+    </div>
+    <div class="kc indigo">
+      <div class="kl">ROI</div>
+      <div class="kv">34,7%</div>
+      <div class="kd up">▲ +4,2pp vs meta</div>
+      <div class="ka">(Lucro − Invest.) / Invest. × 100</div>
+      <div class="tag g">FORTE</div>
+    </div>
+    <div class="kc violet">
+      <div class="kl">Retorno s/ PL (ROE)</div>
+      <div class="kv">22,1%</div>
+      <div class="kd up">▲ +1,8pp vs abr/25</div>
+      <div class="ka">Lucro líq. / Patrim. líq. anualizado</div>
+      <div class="tag i">REFERÊNCIA: 18%</div>
+    </div>
+    <div class="kc amber">
+      <div class="kl">Payback</div>
+      <div class="kv">14,2 m</div>
+      <div class="kd warn">▼ −1,3m vs trimestre ant.</div>
+      <div class="ka">Prazo de retorno do investimento</div>
+      <div class="tag a">MELHORANDO</div>
+    </div>
+  </div>
+
+  <!-- CRESCIMENTO & CLIENTES -->
+  <div class="sec-title">Crescimento &amp; Clientes</div>
+  <div class="g4">
+    <div class="kc teal">
+      <div class="kl">Tx. Crescimento Receita</div>
+      <div class="kv">+12,4%</div>
+      <div class="kd up">▲ acima da inflação</div>
+      <div class="ka">YoY — meta anual: 10%</div>
+      <div class="tag g">ACIMA META</div>
+    </div>
+    <div class="kc pink">
+      <div class="kl">CAC</div>
+      <div class="kv">R$ 1.840</div>
+      <div class="kd warn">▲ +8,3% vs meta</div>
+      <div class="ka">Custo total mktg+vendas / novos clientes</div>
+      <div class="tag a">MONITORAR</div>
+    </div>
+    <div class="kc red">
+      <div class="kl">Churn</div>
+      <div class="kv">3,2%</div>
+      <div class="kd down">▲ +0,4pp vs mar/26</div>
+      <div class="ka">Clientes perdidos / base ativa no período</div>
+      <div class="tag r">ACIMA LIMITE</div>
+    </div>
+    <div class="kc rose">
+      <div class="kl">Tx. Queima de Caixa</div>
+      <div class="kv">R$ 218k</div>
+      <div class="kd warn">▲ +12k vs mês ant.</div>
+      <div class="ka">Cash burn mensal — runway: 11 meses</div>
+      <div class="tag a">ATENÇÃO</div>
+    </div>
+  </div>
+
+  <!-- LIQUIDEZ & ENDIVIDAMENTO -->
+  <div class="sec-title">Liquidez &amp; Endividamento</div>
+  <div class="g4">
+    <div class="kc sky">
+      <div class="kl">Liquidez Imediata</div>
+      <div class="kv">0,38</div>
+      <div class="kd warn">▼ limite mínimo: 0,30</div>
+      <div class="ka">Disponível / Passivo circulante</div>
+      <div class="tag a">MONITORAR</div>
+    </div>
+    <div class="kc indigo">
+      <div class="kl">Liq. Corrente (ILC)</div>
+      <div class="kv">1,74</div>
+      <div class="kd up">▲ saudável</div>
+      <div class="ka">Ativo circ. / Passivo circ. — meta: &gt;1,5</div>
+      <div class="tag g">OK</div>
+    </div>
+    <div class="kc amber">
+      <div class="kl">Índice de Endividamento</div>
+      <div class="kv">1,42x</div>
+      <div class="kd down">▲ acima do covenant</div>
+      <div class="ka">Dívida total / Patrim. líquido</div>
+      <div class="tag r">CRÍTICO</div>
+    </div>
+    <div class="kc green">
+      <div class="kl">Ativos Circulantes</div>
+      <div class="kv">R$ 7,3M</div>
+      <div class="kd up">▲ +6,1% vs dez/25</div>
+      <div class="ka">Caixa + Recebíveis + Estoques</div>
+      <div class="tag g">CRESCENDO</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="pt">Capacidade de Pagamento <span>DSCR</span></div>
+      <div style="display:flex;align-items:center;gap:18px;margin-bottom:12px">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:#f1f5f9">1,68x</div>
+          <div style="font-size:11px;color:#475569;margin-top:4px">Debt Service Coverage Ratio</div>
+          <div style="font-size:11px;color:#22c55e;margin-top:2px">▲ acima do mínimo (1,3x)</div>
+        </div>
+        <div style="flex:1">
+          <div class="pr-r"><div class="pr-l"><span>EBITDA disponível</span><span>R$ 2.184k</span></div><div class="pr-b"><div class="pr-f" style="width:100%;background:#22c55e"></div></div></div>
+          <div class="pr-r"><div class="pr-l"><span>Serviço da dívida</span><span>R$ 1.300k</span></div><div class="pr-b"><div class="pr-f" style="width:60%;background:#6366f1"></div></div></div>
+          <div class="pr-r"><div class="pr-l"><span>Folga</span><span>R$ 884k</span></div><div class="pr-b"><div class="pr-f" style="width:40%;background:#34d399"></div></div></div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#334155;border-top:.5px solid rgba(255,255,255,.05);padding-top:10px">EBITDA / (Amortizações + Juros) — Limite covenant: 1,30x</div>
+    </div>
+    <div class="panel">
+      <div class="pt">Composição Ativos Circulantes</div>
+      <div id="ac-bars"></div>
+    </div>
+  </div>
+
+  <!-- TRIBUTÁRIO & FISCAL -->
+  <div class="sec-title">Tributário &amp; Fiscal</div>
+  <div class="g4">
+    <div class="kc violet">
+      <div class="kl">Alíquota Efetiva</div>
+      <div class="kv">23,8%</div>
+      <div class="kd muted">— meta: ≤25%</div>
+      <div class="ka">Impostos totais / LAIR — Lucro Real</div>
+      <div class="tag g">DENTRO META</div>
+    </div>
+    <div class="kc orange">
+      <div class="kl">Juros p/ Atraso</div>
+      <div class="kv">R$ 14,2k</div>
+      <div class="kd down">▲ +22% vs mar/26</div>
+      <div class="ka">Multas + SELIC s/ obrigações vencidas</div>
+      <div class="tag r">CRESCENDO</div>
+    </div>
+    <div class="kc lime">
+      <div class="kl">Obrigações Entregues</div>
+      <div class="kv">41 / 44</div>
+      <div class="kd warn">3 pendentes</div>
+      <div class="ka">SPED · DCTF · EFD · REINF · ECF · DIRF</div>
+      <div class="tag a">EM ANDAMENTO</div>
+    </div>
+    <div class="kc cyan">
+      <div class="kl">Notas Fiscais Emitidas</div>
+      <div class="kv">2.847</div>
+      <div class="kd up">▲ +9,3% vs abr/25</div>
+      <div class="ka">NF-e + NFS-e + CT-e no período</div>
+      <div class="tag i">PERÍODO</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="pt">Declarações Retificadas <span>Índice de qualidade</span></div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <div style="text-align:center">
+          <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:#f59e0b">4,5%</div>
+          <div style="font-size:10px;color:#475569;margin-top:4px">Retific. / Total entregues</div>
+          <div style="font-size:10px;color:#f59e0b;margin-top:2px">▲ meta: ≤3%</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:#64748b;margin-bottom:10px">Retificações por tipo — últimos 12m</div>
+          <div class="pr-r"><div class="pr-l"><span>DCTF</span><span>6 retif.</span></div><div class="pr-b"><div class="pr-f" style="width:75%;background:#f59e0b"></div></div></div>
+          <div class="pr-r"><div class="pr-l"><span>EFD Contribuições</span><span>4 retif.</span></div><div class="pr-b"><div class="pr-f" style="width:50%;background:#f59e0b"></div></div></div>
+          <div class="pr-r"><div class="pr-l"><span>SPED Fiscal</span><span>2 retif.</span></div><div class="pr-b"><div class="pr-f" style="width:25%;background:#22c55e"></div></div></div>
+          <div class="pr-r"><div class="pr-l"><span>REINF</span><span>0 retif.</span></div><div class="pr-b"><div class="pr-f" style="width:2%;background:#22c55e"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="pt">Obrigações — calendário de status</div>
+      <div id="obrig-list"></div>
+    </div>
+  </div>
+
+  <!-- RESULTADO & FLUXO -->
+  <div class="sec-title">Resultado &amp; Fluxo de Caixa</div>
+  <div class="g32">
+    <div class="panel">
+      <div class="pt">Receita, Custo &amp; Margem — 6 meses <span>R$ mil</span></div>
+      <div class="lg-row">
+        <div class="lg-i"><div class="lg-sq" style="background:#6366f1"></div>Receita Líq.</div>
+        <div class="lg-i"><div class="lg-sq" style="background:#f87171"></div>CPV + Desp.</div>
+        <div class="lg-i"><div class="lg-sq" style="background:#22c55e"></div>Margem Líq. %</div>
+      </div>
+      <div class="bw"><canvas id="barChart" role="img" aria-label="Receita e custo por mês"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="pt">DRE Sintético <span>Abr/26 · R$ mil</span></div>
+      <div class="dre-r"><div class="lb">Receita Bruta</div><div class="vl">5.620</div></div>
+      <div class="dre-r"><div class="lb">(–) Deduções</div><div class="vl r">(820)</div></div>
+      <div class="dre-r"><div class="lb">Receita Líquida</div><div class="vl">4.800</div></div>
+      <div class="dre-r"><div class="lb">(–) CPV</div><div class="vl r">(2.016)</div></div>
+      <div class="dre-r"><div class="lb">Lucro Bruto</div><div class="vl g">2.784</div></div>
+      <div class="dre-r"><div class="lb">(–) Desp. Oper.</div><div class="vl r">(1.404)</div></div>
+      <div class="dre-r"><div class="lb">EBIT</div><div class="vl">1.380</div></div>
+      <div class="dre-r"><div class="lb">(–) Desp. Financ.</div><div class="vl r">(168)</div></div>
+      <div class="dre-r"><div class="lb">(–) IR / CSLL</div><div class="vl r">(269)</div></div>
+      <div class="dre-r dre-total"><div class="lb">Lucro Líquido</div><div class="vl">883</div></div>
+      <div style="margin-top:10px;font-size:10px;color:#334155">Margem líquida: <span style="color:#22c55e;font-family:'DM Mono',monospace">18,4%</span></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="pt">Taxa de Queima &amp; Runway <span>Fluxo mensal · R$ mil</span></div>
+      <div class="lw"><canvas id="lineChart" role="img" aria-label="Saldo de caixa e burn rate mensais"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="pt">CAC vs. Ticket Médio <span>Evolução trimestral</span></div>
+      <div class="lw"><canvas id="cacChart" role="img" aria-label="CAC comparado ao ticket médio por trimestre"></canvas></div>
+      <div class="lg-row" style="margin-top:10px">
+        <div class="lg-i"><div class="lg-sq" style="background:#f59e0b"></div>CAC</div>
+        <div class="lg-i"><div class="lg-sq" style="background:#818cf8"></div>Ticket Médio</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTAS -->
+  <div class="sec-title">Alertas &amp; Governança</div>
+  <div class="g2">
+    <div class="panel">
+      <div class="pt">Pendências Críticas</div>
+      <div class="al-r"><div class="al-dot r"></div><div class="al-tx">Endividamento acima do covenant bancário (1,42x vs 1,3x)</div><div class="al-mt">URGENTE</div></div>
+      <div class="al-r"><div class="al-dot r"></div><div class="al-tx">Churn em alta — 3,2% (limite: 3,0%)</div><div class="al-mt">URGENTE</div></div>
+      <div class="al-r"><div class="al-dot r"></div><div class="al-tx">Juros por atraso crescendo +22% vs mês anterior</div><div class="al-mt">AÇÃO</div></div>
+      <div class="al-r"><div class="al-dot a"></div><div class="al-tx">SPED Fiscal — entrega: 30/04/2026</div><div class="al-mt">30/04</div></div>
+      <div class="al-r"><div class="al-dot a"></div><div class="al-tx">Índice retificações acima da meta (4,5% vs 3%)</div><div class="al-mt">REVISAR</div></div>
+      <div class="al-r"><div class="al-dot a"></div><div class="al-tx">CAC R$1.840 — +8,3% acima da meta</div><div class="al-mt">MONITORAR</div></div>
+      <div class="al-r"><div class="al-dot g"></div><div class="al-tx">Liquidez corrente 1,74 — dentro do limite</div><div class="al-mt">OK</div></div>
+      <div class="al-r"><div class="al-dot g"></div><div class="al-tx">Alíquota efetiva 23,8% — dentro da meta</div><div class="al-mt">OK</div></div>
+    </div>
+    <div class="panel">
+      <div class="pt">Churn &amp; Crescimento <span>Evolução mensal %</span></div>
+      <div class="lw"><canvas id="churnChart" role="img" aria-label="Evolução mensal do churn e crescimento de receita"></canvas></div>
+      <div class="lg-row" style="margin-top:10px">
+        <div class="lg-i"><div class="lg-sq" style="background:#f87171"></div>Churn %</div>
+        <div class="lg-i"><div class="lg-sq" style="background:#22c55e"></div>Crescimento receita %</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Painel de Controladoria — Visão Integrada</span>
+    <span id="ts"></span>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+document.getElementById('ts').textContent = 'Gerado em ' + new Date().toLocaleString('pt-BR');
+
+const grid='rgba(255,255,255,0.05)', tick='#334155';
+Chart.defaults.color=tick;
+Chart.defaults.font.family='DM Sans';
+Chart.defaults.font.size=10;
+
+new Chart(document.getElementById('barChart'),{
+  type:'bar',
+  data:{
+    labels:['Nov','Dez','Jan','Fev','Mar','Abr'],
+    datasets:[
+      {label:'Receita',data:[3800,4200,4100,4500,4600,4800],backgroundColor:'rgba(99,102,241,0.7)',borderRadius:3,barPercentage:0.45,order:2},
+      {label:'CPV+Desp',data:[3100,3600,3400,3500,3300,3420],backgroundColor:'rgba(248,113,113,0.55)',borderRadius:3,barPercentage:0.45,order:2},
+      {label:'Margem%',data:[18.4,14.3,17.1,22.2,28.3,18.4],type:'line',borderColor:'#22c55e',borderWidth:1.5,pointRadius:3,pointBackgroundColor:'#22c55e',tension:0.4,yAxisID:'y2',order:1}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.yAxisID==='y2'?' '+ctx.raw+'%':' R$'+ctx.raw.toLocaleString('pt-BR')}}},scales:{x:{grid:{color:grid},ticks:{color:tick}},y:{grid:{color:grid},ticks:{color:tick,callback:v=>'R$'+Math.round(v/1000)+'k'}},y2:{position:'right',grid:{display:false},ticks:{color:'#22c55e',callback:v=>v+'%'}}}}
+});
+
+const months=['Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan','Fev','Mar','Abr'];
+const saldo=[4100,4350,4200,4580,4320,4900,4700,5100,4850,5200,5050,4832];
+new Chart(document.getElementById('lineChart'),{
+  type:'line',
+  data:{labels:months,datasets:[
+    {label:'Saldo Caixa',data:saldo,borderColor:'#6366f1',borderWidth:1.5,pointRadius:2,tension:0.4,fill:true,backgroundColor:(ctx)=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,150);g.addColorStop(0,'rgba(99,102,241,0.18)');g.addColorStop(1,'rgba(99,102,241,0)');return g}},
+    {label:'Burn Rate',data:[218,195,230,210,245,200,225,205,235,215,206,218],borderColor:'#f87171',borderWidth:1.5,pointRadius:2,tension:0.4,yAxisID:'y2'}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.yAxisID==='y2'?' Burn: R$'+ctx.raw+'k':' Saldo: R$'+ctx.raw.toLocaleString('pt-BR')}}},scales:{x:{grid:{color:grid},ticks:{color:tick}},y:{grid:{color:grid},ticks:{color:tick,callback:v=>'R$'+Math.round(v/1000)+'k'}},y2:{position:'right',grid:{display:false},ticks:{color:'#f87171',callback:v=>'R$'+v+'k'}}}}
+});
+
+new Chart(document.getElementById('cacChart'),{
+  type:'line',
+  data:{labels:['Q2/25','Q3/25','Q4/25','Q1/26','Q2/26*'],datasets:[
+    {label:'CAC',data:[1520,1650,1710,1790,1840],borderColor:'#f59e0b',borderWidth:1.5,pointRadius:3,tension:0.4},
+    {label:'Ticket Médio',data:[4200,4350,4280,4420,4510],borderColor:'#818cf8',borderWidth:1.5,pointRadius:3,tension:0.4}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' R$'+ctx.raw.toLocaleString('pt-BR')}}},scales:{x:{grid:{color:grid},ticks:{color:tick}},y:{grid:{color:grid},ticks:{color:tick,callback:v=>'R$'+Math.round(v/1000)+'k'}}}}
+});
+
+new Chart(document.getElementById('churnChart'),{
+  type:'line',
+  data:{labels:['Nov','Dez','Jan','Fev','Mar','Abr'],datasets:[
+    {label:'Churn',data:[2.1,2.4,2.8,2.6,2.8,3.2],borderColor:'#f87171',borderWidth:1.5,pointRadius:3,tension:0.4},
+    {label:'Crescimento',data:[9.2,11.4,10.8,13.1,12.9,12.4],borderColor:'#22c55e',borderWidth:1.5,pointRadius:3,tension:0.4}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:grid},ticks:{color:tick}},y:{grid:{color:grid},ticks:{color:tick,callback:v=>v+'%'}}}}
+});
+
+// Ativos circulantes
+const acData=[
+  {lb:'Disponível (Caixa)',v:1820,pct:25,c:'#22c55e'},
+  {lb:'Contas a Receber',v:3285,pct:45,c:'#6366f1'},
+  {lb:'Estoques',v:1460,pct:20,c:'#f59e0b'},
+  {lb:'Outros',v:735,pct:10,c:'#475569'},
+];
+const acWrap=document.getElementById('ac-bars');
+acData.forEach(i=>{
+  acWrap.innerHTML+=`<div class="pr-r"><div class="pr-l"><span>${i.lb}</span><span>R$ ${i.v.toLocaleString('pt-BR')}k · ${i.pct}%</span></div><div class="pr-b"><div class="pr-f" style="width:${i.pct*100/45}%;background:${i.c}"></div></div></div>`;
+});
+
+// Obrigações
+const obs=[
+  {nm:'ECF 2025',dt:'31/07/26',st:'g',sl:'Entregue'},
+  {nm:'DCTF Mensal Abr',dt:'15/05/26',st:'a',sl:'Pendente'},
+  {nm:'EFD-REINF',dt:'15/05/26',st:'a',sl:'Em prep.'},
+  {nm:'SPED Fiscal Mar',dt:'30/04/26',st:'r',sl:'URGENTE'},
+  {nm:'DIRF 2026',dt:'28/02/26',st:'g',sl:'Entregue'},
+  {nm:'DCTF-Web Abr',dt:'20/05/26',st:'a',sl:'Pendente'},
+];
+const obWrap=document.getElementById('obrig-list');
+obs.forEach(o=>{
+  const cl={g:'#22c55e',a:'#f59e0b',r:'#ef4444'}[o.st];
+  const bg={g:'rgba(34,197,94,.08)',a:'rgba(245,158,11,.08)',r:'rgba(239,68,68,.08)'}[o.st];
+  obWrap.innerHTML+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:.5px solid rgba(255,255,255,.04);font-size:12px"><div style="display:flex;align-items:center;gap:8px"><div style="width:6px;height:6px;border-radius:50%;background:${cl};flex-shrink:0"></div><span style="color:#94a3b8">${o.nm}</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-family:'DM Mono',monospace;font-size:10px;color:#334155">${o.dt}</span><span style="font-size:9px;padding:2px 6px;border-radius:4px;background:${bg};color:${cl}">${o.sl}</span></div></div>`;
+});
+</script>
+</body>
+</html>
